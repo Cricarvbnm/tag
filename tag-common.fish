@@ -35,14 +35,15 @@ function die
     return 1
 end
 
-# 解析一层符号链接
+# 将符号链接的目标解析为绝对路径 (不追踪目标中的符号链接)
 function __reallink -a link
-    set literal_target (readlink $link)
-    set real_pwd $PWD
-
-    cd (dirname $link) || return 1
-    realpath -s $literal_target
-    cd $real_pwd || return 1
+    set target (readlink $link)
+    if string match -q '/*' -- $target
+        realpath -s $target || return 1
+    else
+        set dir (realpath -s (dirname $link))
+        realpath -s $dir/$target || return 1
+    end
 end
 
 # 列出资源的标签目录中的链接，排序并去重
@@ -53,12 +54,11 @@ function __tag_links_of -a resource
 
     set result
     for link in (find $TAG_ROOT/$TAG_DIR -type l)
-        set target (__reallink $link)
-        if [ $target = $expected ]
-            set -a result (realpath -s --relative-base $PWD $link)
-        end
+        set target (__reallink $link) || continue
+        [ "$target" = "$expected" ] && set -a result (realpath -s --relative-base $PWD $link)
     end
     [ (count $result) -gt 0 ] && printf '%s\n' $result | sort -u
+    return 0
 end
 
 # 列出标签的所有资源（目标路径），排序并去重
@@ -67,10 +67,11 @@ function __tag_resources_of -a tag
 
     set result
     for link in (find $tag -type l)
-        set target (__reallink $link)
+        set target (__reallink $link) || continue
         set -a result (realpath -s --relative-base $PWD $target)
     end
     [ (count $result) -gt 0 ] && printf '%s\n' $result | sort -u
+    return 0
 end
 
 # 展示目录项信息
