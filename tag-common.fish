@@ -25,7 +25,7 @@ end
 
 # 当找不到标签目录和资源目录时，使用本文件所在目录作为 $TAG_ROOT。
 # 这样做是为了允许用户的工作目录与项目根目录分离，方便用户进入其他目录操作。
-if not [ -d $TAG_ROOT/$TAG_RES ]; or not [ -d $TAG_ROOT/$TAG_DIR ]
+if ! [ -d $TAG_ROOT/$TAG_RES ] || ! [ -d $TAG_ROOT/$TAG_DIR ]
     set -g TAG_ROOT (dirname (status filename))
 end
 
