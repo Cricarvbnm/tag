@@ -1,13 +1,12 @@
 #!/usr/bin/env fish
 source (dirname (status filename))/tag-common.fish
 
-[ (count $argv) -eq 1 ] || die "用法: <资源>"
+[ (count $argv) -eq 1 ] || die "用法: <资源>" || exit 1
 
 set resource $argv[1]
-set links (__tag_links_of $resource)
+set links (__tag_links_of $resource) || exit 1
 
 if [ (count $links) -eq 0 ]
-    echo "资源 $resource 无标签"
     exit 0
 end
 

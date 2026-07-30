@@ -31,6 +31,11 @@ if [ (count $and_tags) -eq 0 ]; and [ (count $or_tags) -eq 0 ]; and [ (count $no
     exit 0
 end
 
+# Tag 预校验 — 提前查出无效 tag，避免 pipe 内 die 只杀死子 shell
+for tag in $and_tags $or_tags $not_tags
+    [ -d $tag ] || die "错误: tag '$tag' 不存在" || exit 1
+end
+
 # 3. 构建候选集：有 OR → 并集；无 OR → 全部资源
 set candidates (mktemp)
 if [ (count $or_tags) -gt 0 ]

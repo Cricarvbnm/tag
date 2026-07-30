@@ -1,12 +1,12 @@
 #!/usr/bin/env fish
 source (dirname (status filename))/tag-common.fish
 
-[ (count $argv) -eq 2 ] || die "用法: <旧资源> <新资源>"
+[ (count $argv) -eq 2 ] || die "用法: <旧资源> <新资源>" || exit 1
 
 set old $argv[1]
 set new $argv[2]
-set links (__tag_links_of $old)
-mv $old $new
+set links (__tag_links_of $old) || exit 1
+mv $old $new || exit 1
 for link in $links
     set dir (dirname $link)
     rm -v $link

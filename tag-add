@@ -1,7 +1,7 @@
 #!/usr/bin/env fish
 source (dirname (status filename))/tag-common.fish
 
-[ (count $argv) -ge 2 ] || die "用法: <资源> <tag>..."
+[ (count $argv) -ge 2 ] || die "用法: <资源> <tag>..." || exit 1
 
 set resource $argv[1]
 for tag in $argv[2..]

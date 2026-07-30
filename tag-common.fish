@@ -1,4 +1,13 @@
 # 共享库 — 由各 tag-* 命令 source
+#
+# 路径约定:
+#   所有输入和输出路径均相对于 $PWD，或为绝对路径。
+#   不假设 $PWD 等于 $TAG_ROOT。
+#   用户传入的 tag 路径 (如 tag/type/text) 需真实存在于 $PWD 下。
+#
+# 输出约定:
+#   查询类命令 (ls, tags, orphans, query) 空结果时静默退出 (exit 0)。
+#   仅错误条件输出到 stderr 并 exit 1。
 
 # 提供各种环境变量的默认值
 if not set -q TAG_ROOT # 存放资源与标签的目录的位置
@@ -20,10 +29,10 @@ if not [ -d $TAG_ROOT/$TAG_RES ]; or not [ -d $TAG_ROOT/$TAG_DIR ]
     set -g TAG_ROOT (dirname (status filename))
 end
 
-# 输出报错信息并终止程序
+# 输出报错信息并返回 1
 function die
     echo $argv >&2
-    exit 1
+    return 1
 end
 
 # 解析一层符号链接
@@ -31,14 +40,14 @@ function __reallink -a link
     set literal_target (readlink $link)
     set real_pwd $PWD
 
-    cd (dirname $link) || exit 1
+    cd (dirname $link) || return 1
     realpath -s $literal_target
-    cd $real_pwd || exit 1
+    cd $real_pwd || return 1
 end
 
 # 列出资源的标签目录中的链接，排序并去重
 function __tag_links_of -a resource
-    [ -e $resource ] || die "错误: 资源 $resource 不存在"
+    [ -e $resource ] || die "错误: 资源 $resource 不存在" || return 1
 
     set expected (realpath -s $resource)
 
@@ -49,19 +58,19 @@ function __tag_links_of -a resource
             set -a result (realpath -s --relative-base $PWD $link)
         end
     end
-    printf '%s\n' $result | sort -u
+    [ (count $result) -gt 0 ] && printf '%s\n' $result | sort -u
 end
 
 # 列出标签的所有资源（目标路径），排序并去重
 function __tag_resources_of -a tag
-    [ -d $tag ] || die "错误: tag '$tag' 不存在"
+    [ -d $tag ] || die "错误: tag '$tag' 不存在" || return 1
 
     set result
     for link in (find $tag -type l)
         set target (__reallink $link)
         set -a result (realpath -s --relative-base $PWD $target)
     end
-    printf '%s\n' $result | sort -u
+    [ (count $result) -gt 0 ] && printf '%s\n' $result | sort -u
 end
 
 # 展示目录项信息
