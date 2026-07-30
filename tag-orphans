@@ -1,0 +1,11 @@
+#!/usr/bin/env fish
+source (dirname (status filename))/tag-common.fish
+
+set tagged (__tag_resources_of $TAG_ROOT/$TAG_DIR)
+
+set resources (command ls -1 $TAG_ROOT/$TAG_RES | while read r
+    realpath -s --relative-base $PWD $TAG_ROOT/$TAG_RES/$r
+end | sort)
+
+set orphans (comm -23 (printf '%s\n' $resources | psub) (printf '%s\n' $tagged | psub))
+__list $orphans

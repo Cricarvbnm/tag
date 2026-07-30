@@ -1,0 +1,31 @@
+#!/usr/bin/env fish
+source (dirname (status filename))/tag-common.fish
+
+[ (count $argv) -ge 1 ] || die "用法: <资源> [<tag>...]"
+
+set resource $argv[1]
+
+if [ (count $argv) -eq 1 ]
+    set links (__tag_links_of $resource)
+    if [ (count $links) -eq 0 ]
+        echo "$resource 无标签"
+        exit 0
+    end
+
+    __tree (for l in $links
+        dirname $l
+    end)
+
+    echo
+    read -P "确认删除以上所有的资源的标签? [y/N] " -l confirm
+    if [ $confirm = y ]
+        rm $links
+    end
+else
+    set name (basename $resource)
+    set links
+    for tag in $argv[2..]
+        set -a links $tag/$name
+    end
+    rm -v $links
+end

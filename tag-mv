@@ -1,0 +1,14 @@
+#!/usr/bin/env fish
+source (dirname (status filename))/tag-common.fish
+
+[ (count $argv) -eq 2 ] || die "用法: <旧资源> <新资源>"
+
+set old $argv[1]
+set new $argv[2]
+set links (__tag_links_of $old)
+mv $old $new
+for link in $links
+    set dir (dirname $link)
+    rm -v $link
+    ln -srv $new $dir/
+end
