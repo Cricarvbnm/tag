@@ -76,7 +76,8 @@ end
 
 # 展示目录项信息
 function __list
-    eval $TAG_LISTER -d $argv
+    set -l cmd (string split ' ' -- $TAG_LISTER)
+    $cmd -d $argv
 end
 
 # 树状展示
