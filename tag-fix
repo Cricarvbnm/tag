@@ -1,0 +1,23 @@
+#!/usr/bin/env fish
+source (dirname (status filename))/tag-common.fish
+
+set broken (find $TAG_ROOT/$TAG_DIR -xtype l 2>/dev/null)
+set stray (find $TAG_ROOT/$TAG_DIR \! -type l \! -type d 2>/dev/null)
+
+if [ (count $broken) -gt 0 ]
+    __list $broken
+    echo
+    read -P "确认删除以上断裂链接? [y/N] " -l confirm
+    if [ $confirm = y ]
+        rm $broken
+    end
+end
+
+if [ (count $stray) -gt 0 ]
+    __list $stray
+    echo
+    read -P "确认删除以上多余文件? [y/N] " -l confirm
+    if [ $confirm = y ]
+        rm $stray
+    end
+end
