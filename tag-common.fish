@@ -23,10 +23,22 @@ if not set -q TAG_LISTER # 展示文件时的 `ls`
     set -g TAG_LISTER "ls -1"
 end
 
-# 当找不到标签目录和资源目录时，使用本文件所在目录作为 $TAG_ROOT。
-# 这样做是为了允许用户的工作目录与项目根目录分离，方便用户进入其他目录操作。
-if ! [ -d $TAG_ROOT/$TAG_RES ] || ! [ -d $TAG_ROOT/$TAG_DIR ]
-    set -g TAG_ROOT (dirname (status filename))
+# 若当前 TAG_ROOT 下找不到 res/ 和 tag/，从 $PWD 向上搜索项目根目录
+# 方便用户在子目录中操作，无需手动设置环境变量
+if ! [ -d "$TAG_ROOT/$TAG_RES" ] || ! [ -d "$TAG_ROOT/$TAG_DIR" ]
+    set -l dir $PWD
+    set -g TAG_ROOT ""
+    while [ "$dir" != / ]
+        if [ -d "$dir/$TAG_RES" ] && [ -d "$dir/$TAG_DIR" ]
+            set -g TAG_ROOT $dir
+            break
+        end
+        set dir (dirname $dir)
+    end
+    # 遍历到根目录都没找到 — 保持 $PWD 作为兜底
+    if [ -z "$TAG_ROOT" ]
+        set -g TAG_ROOT $PWD
+    end
 end
 
 # 输出报错信息并返回 1
