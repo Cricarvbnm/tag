@@ -1,2 +1,3 @@
-tag/
-res/
+/tag/
+/res/
+__pycache__/

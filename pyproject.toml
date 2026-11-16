@@ -1,0 +1,24 @@
+[project]
+name = "tag"
+version = "0.1.0"
+description = "Tag files with relative symlinks"
+readme = "README.md"
+authors = [
+    { name = "Alec", email = "alechron@outlook.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+tag-add = "tag.cmd.add:main"
+tag-fix = "tag.cmd.fix:main"
+tag-ls = "tag.cmd.ls:main"
+tag-mv = "tag.cmd.mv:main"
+tag-orphans = "tag.cmd.orphans:main"
+tag-query = "tag.cmd.query:main"
+tag-rm = "tag.cmd.rm:main"
+tag-tags = "tag.cmd.tags:main"
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14.0"]
+build-backend = "uv_build"

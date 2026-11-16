@@ -1,0 +1,1 @@
+"""File tagging command suite."""
