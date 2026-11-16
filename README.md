@@ -191,3 +191,7 @@ back to `$PWD`; a `TAG_ROOT` without both directories is thus ignored.
   calls such as `find $TAG_ROOT/$TAG_DIR` and `mkdir -p $tag`.
 - Only `tag-add` creates directories (the tags it is given); `res/` and `tag/` must
   already exist.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
