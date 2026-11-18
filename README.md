@@ -6,24 +6,44 @@ can be nested, and a resource can belong to several tags.
 
 ## Setup
 
-The project uses `uv` and requires the Python version declared in `.python-version`.
-There are no runtime Python dependencies.
+The project requires the Python version declared in `.python-version`.
+There are no third-party runtime Python dependencies. For development and a
+personal isolated installation, uv can be used:
 
 ```sh
-uv sync
+uv sync --group build
 uv tool install .
 ```
 
 The installation provides `tag-add`, `tag-query`, `tag-ls`, `tag-tags`,
 `tag-orphans`, `tag-mv`, `tag-rm`, and `tag-fix`.
-`make install PREFIX="$HOME/.local"` installs them under the selected prefix.
 `make` (or `make all`) builds a source distribution and wheel in `dist/`;
+the selected Python must have `build` and the `uv_build` backend installed.
+Builds use `--no-isolation` and do not install build dependencies automatically.
+The `build` dependency group declares these tools and `installer`. To build
+with the project environment explicitly, run `make PYTHON=.venv/bin/python`.
 `make clean` removes those package archives. `make install` builds first, then
-installs the wheel into an isolated uv tool environment. `PREFIX` defaults to
-`/usr/local`; `BINDIR` and `TOOL_DIR` default to `$(PREFIX)/bin` and
-`$(PREFIX)/lib/uv/tools`. `UV`, `PYTHON`, and `DISTDIR` can also be overridden.
-Installation prefixes are final locations; staged `DESTDIR` installation is
-not supported because uv tool environments contain absolute paths.
+installs the wheel using `python -m installer`. The selected Python must have
+the `installer` module available; this is an installation tool dependency,
+not a runtime dependency. `PREFIX` defaults to `/usr/local`. Python determines
+the module and executable directory layout; `PYTHON` and `DISTDIR` can
+also be overridden.
+
+On Arch Linux, the build and installation tools are provided by `python-build`,
+`python-installer`, and `python-uv-build`; runtime requires `python>=3.14`.
+
+`DESTDIR` defaults to empty and can stage files for packaging:
+
+```sh
+make install PREFIX=/usr DESTDIR="$PWD/pkg" PYTHON=/usr/bin/python
+```
+
+Files are written under `pkg/usr/`, while launchers use the selected Python
+interpreter rather than the staging directory. Use the intended runtime
+interpreter when packaging; an interpreter from a development virtual environment
+would bind launchers to that environment. The final module directory must be
+on that interpreter's import path. For a personal isolated installation, use
+`uv tool install .` as shown above.
 
 The current version is `0.1.0`. Versions are incremented for releases rather
 than for every commit; tracking the main branch is an installation choice.
