@@ -1,18 +1,24 @@
+"""Show the tag directories referring to a resource."""
+
 from pathlib import Path
 
-from ..common import die, entry
-from ..library import find_resource_links
+from ..library import Library, Resource
 from ..output import print_tree
+from . import command, usage
 
 
-def run(argv: list[str], library: Path) -> int:
+def _parse(argv: list[str]) -> tuple[Path]:
     if len(argv) != 1:
-        return die("Usage: tag-tags <resource>")
-    links = find_resource_links(Path(argv[0]), library)
-    if links:
-        print_tree([path.parent for path in links], library)
+        raise usage("<resource>")
+    return (Path(argv[0]),)
+
+
+@command(parse=_parse)
+def main(path: Path, *, library: Library) -> int:
+    links = library.links(Resource(path))
+    print_tree([link.path.parent for link in links], library.root)
     return 0
 
 
-def main() -> None:
-    entry(run)
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,23 +1,31 @@
-from pathlib import Path
+"""Interactively remove broken links and stray files from the tag tree."""
 
-from ..common import entry
+from ..library import Library
 from ..output import confirm, list_paths
+from . import _no_arguments, command
 
 
-def run(argv: list[str], library: Path) -> int:
-    tagroot = library / "tag"
-    groups = (
-        ([p for p in tagroot.rglob("*") if p.is_symlink() and not p.exists()], "Remove broken links? [y/N] "),
-        ([p for p in tagroot.rglob("*") if not p.is_symlink() and not p.is_dir()], "Remove stray files? [y/N] "),
-    )
-    for entries, prompt in groups:
-        if entries:
-            list_paths(entries, library)
-            if confirm(prompt):
-                for entry in entries:
-                    entry.unlink(missing_ok=True)
+@command(parse=_no_arguments)
+def main(*, library: Library) -> int:
+    broken = library.broken_links()
+    if broken:
+        status = list_paths([link.path for link in broken], library.root)
+        if status:
+            return status
+        if confirm("Remove broken links? [y/N] "):
+            for link in broken:
+                link.remove()
+
+    stray = library.stray_files()
+    if stray:
+        status = list_paths(stray, library.root)
+        if status:
+            return status
+        if confirm("Remove stray files? [y/N] "):
+            for path in stray:
+                path.unlink(missing_ok=True)
     return 0
 
 
-def main() -> None:
-    entry(run)
+if __name__ == "__main__":
+    raise SystemExit(main())

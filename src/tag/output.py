@@ -1,4 +1,4 @@
-"""Path display and confirmation."""
+"""Display resource paths using the configured external lister."""
 
 import os
 import shlex
@@ -6,27 +6,35 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .library import relative
+
+def _relative(path: Path, root: Path) -> str:
+    """Format a path relative to the display root when possible."""
+    try:
+        return os.path.relpath(path, root)
+    except ValueError:
+        return str(path)
+
+
+def list_paths(paths: list[Path], root: Path) -> int:
+    if not paths:
+        return 0
+    command = shlex.split(os.environ.get("TAG_LISTER") or "ls -1")
+    if not command:
+        raise ValueError("TAG_LISTER must contain a command")
+    return subprocess.run([*command, "-d", "--", *(_relative(path, root) for path in paths)], cwd=root).returncode
 
 
 def confirm(prompt: str) -> bool:
-    """Accept only a lowercase y; EOF cancels the action."""
+    """Accept only lowercase y; EOF cancels."""
     print("\n" + prompt, end="", flush=True)
     return sys.stdin.readline().rstrip("\n") == "y"
 
 
-def list_paths(paths: list[Path], root: Path) -> int:
-    command = shlex.split(os.environ.get("TAG_LISTER", "ls -1"))
-    if not command:
-        raise ValueError("TAG_LISTER must not be empty")
-    return subprocess.run([*command, "-d", *(relative(path, root) for path in paths)], cwd=root).returncode
-
-
 def print_tree(paths: list[Path], root: Path) -> None:
     tree: dict = {}
-    for path in sorted(set(paths), key=lambda item: str(item).split("/")):
+    for path in sorted(set(paths), key=lambda path: str(path).split("/")):
         node = tree
-        for part in Path(relative(path, root)).parts:
+        for part in Path(_relative(path, root)).parts:
             node = node.setdefault(part, {})
 
     def draw(node: dict, prefix: str = "") -> None:
@@ -38,5 +46,3 @@ def print_tree(paths: list[Path], root: Path) -> None:
                 draw(children, prefix + ("    " if last else "│   "))
 
     draw(tree)
-
-

@@ -1,19 +1,23 @@
-import os
+"""Link a resource into one or more tags."""
+
 from pathlib import Path
 
-from ..common import die, entry
+from ..library import Library, Resource, Tag
+from . import command, usage
 
 
-def run(argv: list[str], library: Path) -> int:
+def _parse(argv: list[str]) -> tuple[Path, tuple[Path, ...]]:
     if len(argv) < 2:
-        return die("Usage: tag-add <resource> <tag>...")
-    resource = Path(argv[0])
-    for name in argv[1:]:
-        tag = Path(name)
-        tag.mkdir(parents=True, exist_ok=True)
-        os.symlink(os.path.relpath(resource.absolute(), tag.absolute()), tag / resource.name)
+        raise usage("<resource> <tag>...")
+    return Path(argv[0]), tuple(Path(name) for name in argv[1:])
+
+
+@command(parse=_parse)
+def main(resource: Path, tags: tuple[Path, ...], *, library: Library) -> int:
+    existing = Resource.from_path(resource)
+    for path in tags:
+        Tag(path).add(existing)
     return 0
 
-
-def main() -> None:
-    entry(run)
+if __name__ == "__main__":
+    raise SystemExit(main())

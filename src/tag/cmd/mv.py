@@ -1,22 +1,21 @@
-import os
-import shutil
+"""Move a resource and update its referring links."""
+
 from pathlib import Path
 
-from ..common import die, entry
-from ..library import find_resource_links
+from ..library import Library, Resource
+from . import command, usage
 
 
-def run(argv: list[str], library: Path) -> int:
+def _parse(argv: list[str]) -> tuple[Path, Path]:
     if len(argv) != 2:
-        return die("Usage: tag-mv <old> <new>")
-    old, new = map(Path, argv)
-    links = find_resource_links(old, library)
-    shutil.move(old, new)
-    for link in links:
-        link.unlink()
-        os.symlink(os.path.relpath(new.absolute(), link.parent.absolute()), link)
+        raise usage("<old> <new>")
+    return Path(argv[0]), Path(argv[1])
+
+
+@command(parse=_parse)
+def main(source: Path, destination: Path, *, library: Library) -> int:
+    library.move(Resource(source), destination)
     return 0
 
-
-def main() -> None:
-    entry(run)
+if __name__ == "__main__":
+    raise SystemExit(main())

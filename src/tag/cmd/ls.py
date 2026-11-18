@@ -1,16 +1,23 @@
+"""List resources in a tag and its descendants."""
+
 from pathlib import Path
 
-from ..common import die, entry
-from ..library import find_resources
+from ..library import Library, Tag
 from ..output import list_paths
+from . import command, usage
 
 
-def run(argv: list[str], library: Path) -> int:
+def _parse(argv: list[str]) -> tuple[Path]:
     if len(argv) != 1:
-        return die("Usage: tag-ls <tag>")
-    paths = find_resources(Path(argv[0]))
-    return list_paths(paths, library) if paths else 0
+        raise usage("<tag>")
+    return (Path(argv[0]),)
 
 
-def main() -> None:
-    entry(run)
+@command(parse=_parse)
+def main(path: Path, *, library: Library) -> int:
+    resources = Tag.from_path(path).resources()
+    return list_paths(sorted((resource.path for resource in resources), key=str), library.root)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

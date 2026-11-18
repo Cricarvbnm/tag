@@ -1,15 +1,14 @@
-from pathlib import Path
+"""List immediate resource children without tag links."""
 
-from ..common import entry
-from ..library import find_resources
+from ..library import Library
 from ..output import list_paths
+from . import _no_arguments, command
 
 
-def run(argv: list[str], library: Path) -> int:
-    tagged = set(find_resources(library / "tag"))
-    resources = {path.absolute() for path in (library / "res").iterdir()}
-    return list_paths(sorted(resources - tagged), library)
+@command(parse=_no_arguments)
+def main(*, library: Library) -> int:
+    return list_paths([resource.path for resource in library.orphans()], library.root)
 
 
-def main() -> None:
-    entry(run)
+if __name__ == "__main__":
+    raise SystemExit(main())
