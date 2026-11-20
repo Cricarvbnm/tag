@@ -27,7 +27,7 @@ def _parse(argv: list[str]) -> tuple[Query]:
 @command(parse=_parse)
 def main(query: Query, *, library: Library) -> int:
     resources = query.evaluate(library)
-    return list_paths(sorted((resource.path for resource in resources), key=str), library.root)
+    return list_paths(sorted((resource.path for resource in resources), key=str))
 
 
 if __name__ == "__main__":

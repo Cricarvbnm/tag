@@ -45,9 +45,6 @@ would bind launchers to that environment. The final module directory must be
 on that interpreter's import path. For a personal isolated installation, use
 `uv tool install .` as shown above.
 
-The current version is `0.1.0`. Versions are incremented for releases rather
-than for every commit; tracking the main branch is an installation choice.
-
 Commands can also be run as Python modules:
 
 ```sh
@@ -66,6 +63,9 @@ matching ancestor. If none exists, the same root error is reported.
 defaults to `ls -1`; shell-style quoting is supported. The command must accept
 `-d --` followed by paths, where `--` ends option parsing. Empty results do not
 invoke the command.
+
+File lists show paths relative to the current working directory, and `TAG_LISTER`
+runs in that directory. Tag trees remain relative to the library root.
 
 Empty environment variable values are treated as unset: an empty `TAG_ROOT`
 uses upward library discovery, and an empty `TAG_LISTER` uses `ls -1`.
@@ -114,5 +114,3 @@ to resources inside it. Moves and link updates are not transactional.
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-Output paths are relative to TAG_ROOT. The list command runs in TAG_ROOT.

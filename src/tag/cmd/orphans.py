@@ -7,7 +7,7 @@ from . import _no_arguments, command
 
 @command(parse=_no_arguments)
 def main(*, library: Library) -> int:
-    return list_paths([resource.path for resource in library.orphans()], library.root)
+    return list_paths([resource.path for resource in library.orphans()])
 
 
 if __name__ == "__main__":

@@ -15,13 +15,13 @@ def _relative(path: Path, root: Path) -> str:
         return str(path)
 
 
-def list_paths(paths: list[Path], root: Path) -> int:
+def list_paths(paths: list[Path]) -> int:
     if not paths:
         return 0
     command = shlex.split(os.environ.get("TAG_LISTER") or "ls -1")
     if not command:
         raise ValueError("TAG_LISTER must contain a command")
-    return subprocess.run([*command, "-d", "--", *(_relative(path, root) for path in paths)], cwd=root).returncode
+    return subprocess.run([*command, "-d", "--", *(_relative(path, Path.cwd()) for path in paths)]).returncode
 
 
 def confirm(prompt: str) -> bool:

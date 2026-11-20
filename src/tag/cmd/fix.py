@@ -9,7 +9,7 @@ from . import _no_arguments, command
 def main(*, library: Library) -> int:
     broken = library.broken_links()
     if broken:
-        status = list_paths([link.path for link in broken], library.root)
+        status = list_paths([link.path for link in broken])
         if status:
             return status
         if confirm("Remove broken links? [y/N] "):
@@ -18,7 +18,7 @@ def main(*, library: Library) -> int:
 
     stray = library.stray_files()
     if stray:
-        status = list_paths(stray, library.root)
+        status = list_paths(stray)
         if status:
             return status
         if confirm("Remove stray files? [y/N] "):

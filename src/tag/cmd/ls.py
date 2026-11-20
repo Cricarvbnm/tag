@@ -16,7 +16,7 @@ def _parse(argv: list[str]) -> tuple[Path]:
 @command(parse=_parse)
 def main(path: Path, *, library: Library) -> int:
     resources = Tag.from_path(path).resources()
-    return list_paths(sorted((resource.path for resource in resources), key=str), library.root)
+    return list_paths(sorted((resource.path for resource in resources), key=str))
 
 
 if __name__ == "__main__":
