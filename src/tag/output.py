@@ -30,19 +30,27 @@ def confirm(prompt: str) -> bool:
     return sys.stdin.readline().rstrip("\n") == "y"
 
 
-def print_tree(paths: list[Path], root: Path) -> None:
+def print_tree(
+    paths: list[Path], root: Path, formats: dict[Path, str] | None = None,
+) -> None:
+    """Draw paths with per-node format strings, defaulting to ' {name}'.
+
+    Format keys are absolute paths. Literal braces in templates must be doubled.
+    """
     tree: dict = {}
     for path in sorted(set(paths), key=lambda path: str(path).split("/")):
         node = tree
         for part in Path(_relative(path, root)).parts:
             node = node.setdefault(part, {})
 
-    def draw(node: dict, prefix: str = "") -> None:
+    def draw(node: dict, parent: Path, prefix: str = "") -> None:
         items = sorted(node.items())
         for index, (name, children) in enumerate(items):
             last = index == len(items) - 1
-            print(prefix + ("└── " if last else "├── ") + name)
+            path = Path(os.path.abspath(parent / name))
+            template = (formats or {}).get(path, " {name}")
+            print(prefix + ("└──" if last else "├──") + template.format(name=name))
             if children:
-                draw(children, prefix + ("    " if last else "│   "))
+                draw(children, path, prefix + ("    " if last else "│   "))
 
-    draw(tree)
+    draw(tree, root)

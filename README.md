@@ -83,6 +83,12 @@ uses upward library discovery, and an empty `TAG_LISTER` uses `ls -1`.
 | `tag-rm` | `<resource> [<tag>...]` | Remove links from named tags, or ask before removing all |
 | `tag-fix` | none | Ask before deleting broken links and stray tag files |
 
+`tag-add` prints a tree of the affected tags and their parent directories,
+marking newly created directories with `+` immediately after the tree branch
+and leaving existing directories unmarked. Each added link is shown as
+`name -> target`. Link targets are relative to the containing tag directory;
+the tree is relative to the library root. Unrelated tags are omitted.
+
 Bare tags in `tag-query` are ANDed; `+` switches following tags to OR and `-`
 switches following tags to NOT, until another switch appears. Tag arguments are
 paths such as `tag/music`. Inputs can be relative to the current directory or
